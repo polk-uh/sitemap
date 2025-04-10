@@ -1,0 +1,28 @@
+Go to the repo: https://github.com/polk-uh/sitemap
+
+Click the green "Code" button and switch to the Codespaces tab
+
+Click "Create codespace on main"
+
+    This will create a new Codespace and open it in a new tab
+
+Wait for it to finish setting up
+
+In the terminal (bottom of the screen), run:
+python -m pip install -r requirements.txt
+python sitemap_script.py [insert the URL you want to generate a sitemap for]
+
+
+The sitemap will be generated and saved as sitemap_output.xlsx in the same directory as the script.
+
+ex: 
+python -m pip install -r requirements.txt
+python sitemap_script.py http://www.habitualbedemo.com/
+
+Find sitemap_output.xlsx in the list of files.
+
+Right-click on it.
+
+Select "Download" from the context menu.
+
+It’ll download to your local machine/laptop. Paste the spreadsheet contents into your MC_migration_QA_checklist_EXAMPLE.xlsx copied file.
