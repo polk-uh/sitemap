@@ -10,19 +10,42 @@ Wait for it to finish setting up
 
 In the terminal (bottom of the screen), run:
 python -m pip install -r requirements.txt
-python sitemap_script.py [insert the URL you want to generate a sitemap for]
+python sitemap_script.py [insert the live site URL you want to generate a sitemap for(internal use)]
 
+OR
+python basic_sitemap.py [insert the URL you want to generate a basic sitemap for]
 
-The sitemap will be generated and saved as sitemap_output.xlsx in the same directory as the script.
+The sitemap will be generated and saved as sitemap_output.xlsx or basic_sitemap_output.xlsx in the same directory as the script.
 
-ex: 
-python -m pip install -r requirements.txt
+Install dependancies:
+`python -m pip install -r requirements.txt`
+
+examples: 
+1.
+python sitemap_script.py https://www.uh.edu/financial/
+
+2.
 python sitemap_script.py http://www.habitualbedemo.com/
 
-Find sitemap_output.xlsx in the list of files.
+3.
+python basic_sitemap.py https://www.uh.edu/financial/
+
+4.
+python basic_sitemap.py http://www.habitualbedemo.com/
+
+
+Find sitemap_output.xlsx or basic_sitemap_output.xlsx in the list of files.
 
 Right-click on it.
 
 Select "Download" from the context menu.
 
-It’ll download to your local machine/laptop. Paste the spreadsheet contents into your MC_migration_QA_checklist_EXAMPLE.xlsx copied file.
+It’ll download to your local machine/laptop. 
+
+(INTERNAL->)Paste the spreadsheet contents into your MC_migration_QA_checklist_EXAMPLE.xlsx copied file.
+
+*******************
+*******************
+See repo for example output files:
+basic_sitemap_output.xlsx
+sitemap_output.xlsx

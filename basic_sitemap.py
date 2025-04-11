@@ -1,8 +1,8 @@
-# for internal use only
+# general purpose sitemap generator for a single domain
 import sys
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse, quote
+from urllib.parse import urljoin, urlparse
 import pandas as pd
 import time
 from tqdm import tqdm
@@ -23,22 +23,13 @@ def get_title(soup):
         return soup.title.string.strip()
     return "-"
 
-def get_unique_filename(base_name="sitemap_output", ext="xlsx"):
+def get_unique_filename(base_name="basic_sitemap_output", ext="xlsx"):
     i = 1
     filename = f"{base_name}.{ext}"
     while os.path.exists(filename):
         filename = f"{base_name}_{i}.{ext}"
         i += 1
     return filename
-
-def generate_mc_edit_url(modern_url):
-    if modern_url.endswith('.pdf') or modern_url == "https://modern.web.uh.edu/financial":
-        return "-"
-    base_edit = "https://a.cms.omniupdate.com/11/#oucampus/uh/www/previewedit/"
-    path = modern_url.replace("https://modern.web.uh.edu", "")
-    if path == "":
-        return ""
-    return base_edit + quote(path.strip("/"), safe='') + "%2Findex.pcf"
 
 print(f"Starting crawl on: {base_url}")
 
@@ -64,13 +55,10 @@ with tqdm(total=0, unit="page", dynamic_ncols=True) as pbar:
             file_extension = Path(urlparse(url).path).suffix.lower().lstrip('.') or 'pcf'
 
             url_data.append({
-                "@uh.edu URL": url,
+                "URL": url,
                 "Redirects To": "-",
                 "Title": title,
                 "File Type": file_extension,
-                "QAed?": "",
-                "Looked at?": "",
-                "Redirect?": "Verify" if "index.php" in url.lower() else "n/a",
                 "Notes": "-",
             })
 
@@ -86,13 +74,7 @@ with tqdm(total=0, unit="page", dynamic_ncols=True) as pbar:
 
 # Convert to DataFrame
 df = pd.DataFrame(url_data)
-df = df.sort_values(by="@uh.edu URL", ignore_index=True)  # Sort A-Z by URL
-
-# Add 'Modern URL' and 'MC Edit Page URL' columns
-df['Modern URL'] = df['@uh.edu URL'].str.replace(
-    "https://www.uh.edu/", "https://modern.web.uh.edu/", regex=False
-)
-df["MC Edit Page URL"] = df["Modern URL"].apply(generate_mc_edit_url)
+df = df.sort_values(by="URL", ignore_index=True)  # Sort A-Z by URL
 
 output_filename = get_unique_filename()
 
@@ -104,7 +86,7 @@ with pd.ExcelWriter(output_filename, engine='xlsxwriter') as writer:
 
     # Set column widths (Title = ~350px ≈ 50 chars wide, URLs = 30 chars)
     worksheet.set_column(df.columns.get_loc("Title"), df.columns.get_loc("Title"), 50)
-    worksheet.set_column(df.columns.get_loc("@uh.edu URL"), df.columns.get_loc("@uh.edu URL"), 30)
+    worksheet.set_column(df.columns.get_loc("URL"), df.columns.get_loc("URL"), 30)
     worksheet.set_column(df.columns.get_loc("Notes"), df.columns.get_loc("Notes"), 22)
 
     # Styles
@@ -113,22 +95,16 @@ with pd.ExcelWriter(output_filename, engine='xlsxwriter') as writer:
     green_font = workbook.add_format({'font_color': 'green'})
 
     # Column indexes
-    url_col = df.columns.get_loc("@uh.edu URL")
+    url_col = df.columns.get_loc("URL")
     filetype_col = df.columns.get_loc("File Type")
-    mc_edit_col = df.columns.get_loc("MC Edit Page URL")
 
     for row_num, row in df.iterrows():
         excel_row = row_num + 1  # account for header
 
         filetype = row["File Type"]
-        mc_edit_url = row["MC Edit Page URL"]
 
-        # Write hyperlink for original @uh.edu URL
-        worksheet.write_url(excel_row, url_col, row["@uh.edu URL"], string=row["@uh.edu URL"])
-
-        # Write hyperlink for MC Edit URL (if any)
-        if mc_edit_url:
-            worksheet.write_url(excel_row, mc_edit_col, mc_edit_url, string=mc_edit_url)
+        # Write hyperlink for original URL
+        worksheet.write_url(excel_row, url_col, row["URL"], string=row["URL"])
 
         # Apply font color formatting based on file type
         if filetype == "pdf":
@@ -139,4 +115,4 @@ with pd.ExcelWriter(output_filename, engine='xlsxwriter') as writer:
         elif filetype == "pcf":
             worksheet.write(excel_row, filetype_col, filetype, blue_font)
 
-print(f"✔️  Crawl complete. Sitemap spreadsheet for {base_url} saved as {output_filename}")
+print(f"✔️  Crawl complete. General use sitemap spreadsheet for {base_url} saved as {output_filename}")
